@@ -50,6 +50,9 @@ a {
   text-decoration: none;
   color: inherit;
 }
+ul {
+  list-style: none;
+}
 html {
   position: relative;
 }
@@ -166,4 +169,229 @@ button {
   margin-bottom: 8px;
   margin-left: 5px;
   font-size: 15px;
+}
+
+.home {
+  display: flex;
+  height: 100vh;
+}
+.sidebar {
+  width: 25%;
+  height: 100%;
+  background: #fff;
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.15);
+  &__content {
+    padding-top: 20px;
+    background: #fff;
+    border-top: 1px solid gray;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: #fff;
+  padding: 5px 15px;
+  padding-bottom: 20px;
+  &__menu {
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    i {
+      color: #707579;
+      font-size: 18px;
+    }
+    &:hover {
+      background: #f4f4f4;
+    }
+  }
+}
+
+.search-inner {
+  width: 88%;
+  position: relative;
+  i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 15px;
+    color: #b2b5b7;
+    &.active {
+      color: #3390ec;
+    }
+  }
+}
+.search-input {
+  width: 100%;
+
+  border-radius: 50px;
+  font-family: "Roboto", sans-serif;
+  outline: 0;
+  background: #f4f4f5;
+  border: 0;
+  padding: 5px;
+  padding-left: 45px;
+  box-sizing: border-box;
+  font-size: 16px;
+  color: #a2acb4;
+  height: 44px;
+  &:focus {
+    border: 2px solid #3390ec;
+    color: #000;
+  }
+}
+
+.search-chats {
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+  &__item {
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    border-radius: 15px;
+    padding: 10px;
+    &:hover {
+      background: rgb(234, 233, 233);
+    }
+  }
+  &__item-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+  &__item-info {
+    display: flex;
+    flex-direction: column;
+  }
+  &__item-title {
+    margin-bottom: 2px;
+  }
+}
+
+.chat-inner {
+  background: #9ac098;
+  height: 100%;
+  width: 75%;
+}
+.chat {
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.chat-header {
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: #fff;
+  border-left: 1px solid gray;
+  &__user {
+    display: flex;
+    align-items: center;
+  }
+  &__user-img {
+    margin-right: 15px;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  &__user-title {
+    font-size: 18px;
+  }
+  &__user-status {
+    color: rgb(112, 117, 121);
+    font-size: 14px;
+  }
+}
+.chat-content {
+  flex-grow: 1;
+}
+.chat-message {
+  flex-shrink: 0;
+  &__container {
+    margin: 0 auto;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+  &__inner {
+    width: 600px;
+    position: relative;
+    min-height: 55px;
+    height: auto;
+    border-radius: 15px;
+    background: #fff;
+    font-family: "Roboto", sans-serif;
+
+    border: 0;
+    padding: 17px 50px;
+    padding-left: 50px;
+    box-sizing: border-box;
+    font-size: 18px;
+    color: #a2acb4;
+  }
+}
+
+.chat-input {
+  width: 100%;
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+  outline: 0;
+  padding: 17px 50px;
+  padding-left: 50px;
+
+  background: #fff;
+  border-radius: 15px;
+  // height: auto;
+  // border-radius: 15px;
+  // font-family: "Roboto", sans-serif;
+  // outline: 0;
+  // background: #ffffff;
+  // border: 0;
+  // padding: 17px 50px;
+  // padding-left: 50px;
+  // box-sizing: border-box;
+  // font-size: 18px;
+  // color: #a2acb4;
+
+  &:focus {
+    color: #353333;
+  }
+}
+
+.chat-placeholder {
+  position: absolute;
+  z-index: 3;
+}
+
+.emoji {
+  position: absolute;
+  z-index: 3;
+  bottom: 25%;
+  left: 15px;
+  color: #b2b5b7;
+  font-size: 22px;
+  color: #a2acb4;
 }
