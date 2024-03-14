@@ -3,11 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import { validateUsername, validatePassword } from "../utils/validation";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
-const eye = <FontAwesomeIcon icon={faEye} />;
 
 const Register = () => {
   const navigate = useNavigate();
@@ -52,26 +49,26 @@ const Register = () => {
     e.preventDefault();
     try {
       if (handleValidation()) {
-        // Отправка данных на сервер
-
-        //   const response = await axios.post(
-        //     "ссылка_на_ваш_сервер/api/register",
-        //     formData
-        //   );
-
-        //   console.log("Ответ от сервера:", response.data);
-
-        //   if (response.data.status === "ok") {
-        //     console.log("Успешная регистрация");
-        //     navigate("/login");
-        //   } else {
-        //     console.error("Ошибка регистрации", response.data.message);
-        //     // Обработка других статусов
-        //   }
-        navigate("/login");
+        const response = await axios.post(
+          "http://localhost:8080/api/v1/users/register",
+          formData
+        );
+        console.log("Ответ от сервера:", response.data);
+        if (response.status >= 200 && response.status < 300) {
+          console.log("Успешная регистрация");
+          navigate("/login");
+        } else {
+          console.error("Ошибка регистрации", response.data.message);
+          if (response.status === 400) {
+            setErrors({
+              username: "Пользователь с таким именем уже зарегистрирован",
+              password: "",
+            });
+          }
+        }
       }
     } catch (error) {
-      console.error("Ошибка регистрации", error.response.data);
+      console.error("Ошибка регистрации", error);
       // Обработка ошибки регистрации
     }
   };
@@ -100,7 +97,7 @@ const Register = () => {
               className={`form-icon ${passwordShown ? "active" : ""} `}
               onClick={togglePasswordVisiblity}
             >
-              {eye}
+              {<RemoveRedEyeIcon />}
             </i>
             <input
               type={passwordShown ? "text" : "password"}

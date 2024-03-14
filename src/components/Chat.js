@@ -1,15 +1,16 @@
-import React from "react";
+// Chat.js
+import React, { useState, useEffect } from "react";
 
 import ChatHeader from "./ChatHeader";
 import ChatContent from "./ChatContent";
 import ChatMessage from "./ChatMessage";
 
-const Chat = ({ user }) => {
+const Chat = ({ activeUser, addToChats, messages, submitMessage }) => {
   return (
     <div className="chat">
-      <ChatHeader user={user} />
-      <ChatContent />
-      <ChatMessage />
+      <ChatHeader activeUser={activeUser} />
+      <ChatContent messages={messages} />
+      <ChatMessage submitMessage={submitMessage} activeUser={activeUser} />
     </div>
   );
 };

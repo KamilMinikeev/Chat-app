@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-
-const searchIcon = <FontAwesomeIcon icon={faMagnifyingGlass} />;
+import SearchIcon from "@mui/icons-material/Search";
 
 const Search = ({ onSearchChange, searchInput }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -22,7 +18,7 @@ const Search = ({ onSearchChange, searchInput }) => {
 
   return (
     <div className="search-inner">
-      <i className={isFocused ? "active" : ""}>{searchIcon}</i>
+      <i className={isFocused ? "active" : ""}>{<SearchIcon />}</i>
       <input
         className="search-input"
         type="text"

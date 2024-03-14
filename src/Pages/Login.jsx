@@ -4,11 +4,9 @@ import { useUser } from "../context/UserContext";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-import { validateUsername, validatePassword } from "../utils/validation";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
-const eye = <FontAwesomeIcon icon={faEye} />;
+import { validateUsername, validatePassword } from "../utils/validation";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -58,26 +56,32 @@ const Login = () => {
         // Отправка данных на сервер
 
         const response = await axios.post(
-          "ссылка_на_ваш_сервер/api/register",
+          "http://localhost:8080/api/v1/users/authenticate",
           formData
         );
 
         console.log("Ответ от сервера:", response.data);
 
-        if (response.data.status === "ok") {
+        if (response.status >= 200 && response.status < 300) {
           console.log("Успешный вход");
           login({
             id: response.data.id,
             username: response.data.username,
+            bio: response.data.bio,
           });
           navigate("/home");
         } else {
           console.error("Ошибка входа", response.data.message);
-          // Обработка других статусов
+          if (response.status === 400) {
+            setErrors({
+              username: "Пользователь с таким именем не зарегистрирован",
+              password: "",
+            });
+          }
         }
       }
     } catch (error) {
-      console.error("Ошибка входа", error.response.data);
+      console.error("Ошибка входа", error);
       // Обработка ошибки входа
     }
   };
@@ -106,7 +110,7 @@ const Login = () => {
               className={`form-icon ${passwordShown ? "active" : ""} `}
               onClick={togglePasswordVisiblity}
             >
-              {eye}
+              {<RemoveRedEyeIcon />}
             </i>
             <input
               type={passwordShown ? "text" : "password"}

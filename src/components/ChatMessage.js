@@ -1,19 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
-import { library } from "../utils/iconConfig";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const ChatMessage = ({ onMessageChange }) => {
+import SendIcon from "@mui/icons-material/Send";
+import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
+
+const ChatMessage = ({ onMessageChange, submitMessage, activeUser }) => {
   const inputRef = useRef();
 
   const [isPlaceholderVisible, setPlaceholderVisible] = useState(true);
-  const [message, setMessage] = useState("");
+
+  const submit = () => {
+    const textContent = inputRef.current.innerText;
+
+    if (textContent !== "") {
+      submitMessage(textContent);
+      inputRef.current.innerText = "";
+      setPlaceholderVisible(true);
+      inputRef.current.focus();
+    }
+  };
 
   const saveInputValue = () => {
     const textContent = inputRef.current.textContent;
     setPlaceholderVisible(
       textContent === "" || textContent === "Type a message"
     );
-    setMessage(textContent);
+    // setMessage(textContent);
     //onChange(text);
   };
 
@@ -23,21 +34,36 @@ const ChatMessage = ({ onMessageChange }) => {
     if (event.keyCode === ENTER_KEY_CODE && event.shiftKey === false) {
       event.stopPropagation();
       event.preventDefault();
-      const textContent = inputRef.current.innerText;
 
-      console.log(textContent);
-
-      //submit(textContent);
+      submit();
     }
   };
 
   const handleKeyDown = (event) => {
-    // Проверяем, является ли нажатая клавиша буквой или цифрой
+    //Проверяем, является ли нажатая клавиша буквой или цифрой
     if (
-      /^[a-zA-Z0-9]$/.test(event.key) &&
+      (/^\p{L}|\d$/u.test(event.key) ||
+        (event.key === "Shift" && !event.getModifierState("CapsLock")) ||
+        (event.key === "CapsLock" && !event.getModifierState("Shift")) ||
+        (event.key.length === 1 && event.getModifierState("CapsLock"))) &&
       document.activeElement.tagName !== "INPUT"
     ) {
       inputRef.current.focus();
+    }
+  };
+
+  const handleFocus = () => {
+    const input = inputRef.current;
+
+    if (input) {
+      const range = document.createRange();
+      const selection = window.getSelection();
+
+      range.selectNodeContents(input);
+      range.collapse(false); // устанавливаем конец выделения
+
+      selection.removeAllRanges();
+      selection.addRange(range);
     }
   };
 
@@ -51,39 +77,35 @@ const ChatMessage = ({ onMessageChange }) => {
   useEffect(() => {
     const currentInputRef = inputRef.current;
 
-    document.addEventListener("keydown", handleKeyDown);
+    const handleEvents = () => {
+      currentInputRef.addEventListener("keydown", onKeyDown);
+      currentInputRef.addEventListener("paste", handlePaste);
+      currentInputRef.addEventListener("input", saveInputValue);
+      currentInputRef.addEventListener("focus", handleFocus);
+      document.addEventListener("keydown", handleKeyDown);
+    };
 
-    currentInputRef.addEventListener("keydown", onKeyDown);
-    currentInputRef.addEventListener("paste", handlePaste);
-    currentInputRef.addEventListener("input", saveInputValue);
-
-    currentInputRef.focus();
-
-    return () => {
+    const removeEvents = () => {
       currentInputRef.removeEventListener("input", saveInputValue);
       currentInputRef.removeEventListener("keydown", onKeyDown);
       currentInputRef.removeEventListener("paste", handlePaste);
-
+      currentInputRef.removeEventListener("focus", handleFocus);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
 
-  const handleMessageChange = (e) => {
-    const value = e.target.value;
-    setMessage(value);
-    //onMessageChange(value);
-  };
+    handleEvents();
 
-  // const placeholderHtml = isPlaceholderVisible
-  //   ? '<div class="chat-placeholder">Type a message</div>'
-  //   : "";
+    return () => {
+      removeEvents();
+    };
+  }, [inputRef, activeUser]);
 
   return (
     <div className="chat-message">
       <div className="chat-message__container">
         <div className="chat-message__inner">
           <button className="emoji">
-            <FontAwesomeIcon icon="fa-regular fa-face-smile" />
+            <SentimentSatisfiedAltIcon />
           </button>
           {isPlaceholderVisible && (
             <div
@@ -98,9 +120,16 @@ const ChatMessage = ({ onMessageChange }) => {
             ref={inputRef}
             placeholder="Type a message"
             contentEditable
-            // dangerouslySetInnerHTML={{ __html: placeholderHtml }}
           ></div>
         </div>
+        <button
+          className="chat-message__submit"
+          onClick={() => {
+            submit();
+          }}
+        >
+          <SendIcon />
+        </button>
       </div>
     </div>
   );
