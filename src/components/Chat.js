@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import ChatContent from "./ChatContent";
 import ChatMessage from "./ChatMessage";
 
-const Chat = ({ activeUser, addToChats, messages, submitMessage }) => {
+const Chat = ({ activeUser, messages, submitMessage }) => {
   return (
     <div className="chat">
       <ChatHeader activeUser={activeUser} />

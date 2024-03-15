@@ -7,6 +7,7 @@ const ChatContent = ({ messages }) => {
   const chatContentRef = useRef();
 
   // Эффект для прокрутки вниз при добавлении нового сообщения
+  // пока не настроил
   useEffect(() => {
     if (chatContentRef.current) {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
@@ -15,18 +16,17 @@ const ChatContent = ({ messages }) => {
 
   return (
     <div className="chat-content" ref={chatContentRef}>
-      {messages.length > 0
-        ? messages.map((message, index) => (
-            <div
-              key={index}
-              className={`message ${
-                message.senderId === user.id ? "sender" : "recipient"
-              }`}
-            >
-              {message.message}
-            </div>
-          ))
-        : ""}
+      {messages.length > 0 &&
+        messages.map((message, index) => (
+          <div
+            key={index}
+            className={`message ${
+              message.sender.id === user.id ? "sender" : "recipient"
+            }`}
+          >
+            {message.payload}
+          </div>
+        ))}
     </div>
   );
 };

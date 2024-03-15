@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Chat from "../components/Chat";
 
+import axios from "axios";
+
 import { useUser } from "../context/UserContext";
 
 import webSocketService from "../services/WebSocketService";
@@ -16,64 +18,68 @@ const Home = () => {
   const [isNewChat, setIsNewChat] = useState(false);
 
   const [messages, setMessages] = useState([
-    {
-      senderId: "3",
-      recipientId: "1",
-      message: "Hi ауа цву цув цув ",
-    },
-    {
-      senderId: "1",
-      recipientId: "3",
-      message: "Hello wd",
-    },
+    // {
+    //   id: "18",
+    //   privateRoomId: "13",
+    //   payload: "Hiii!",
+    //   sender: {
+    //     id: "1",
+    //     username: "Kamil",
+    //     bio: null,
+    //   },
+    //   recipient: {
+    //     id: "3",
+    //     username: "Aliya",
+    //     bio: null,
+    //   },
+    // },
   ]);
 
   const [chats, setChats] = useState([
-    {
-      privateRoomId: "22",
-      sender: {
-        id: "1",
-        username: "Kamil",
-        bio: null,
-      },
-      recipient: {
-        id: "3",
-        username: "Aliya",
-        bio: null,
-      },
-      lastMessage: "Last Message",
-    },
+    // {
+    //   id: "22",
+    //   recipient: {
+    //     id: "3",
+    //     username: "Aliya",
+    //     bio: null,
+    //   },
+    //   lastMessage: "Last Message",
+    // },
   ]);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await axios.get("");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/v1/private-rooms/${user.id}`
+        );
 
-  //       if (response.status >= 200 && response.status < 300) {
-  //         setChats(response.data);
-  //       } else {
-  //       }
-  //     } catch (error) {
-  //       console.error("Ошибка запроса:", error);
-  //     }
-  //   };
+        if (response.status >= 200 && response.status < 300) {
+          setChats(response.data);
+        } else {
+        }
+      } catch (error) {
+        console.error("Ошибка запроса:", error);
+      }
+    };
 
-  //   fetchData();
-  // }, []);
+    fetchData();
+  }, []);
 
   const handleChatUser = (user) => {
     setActiveUser(user);
 
-    const senderChats = chats.filter((chat) => chat.sender.id === user.id);
+    const recipientChats = chats.filter(
+      (chat) => chat.recipient.id === user.id
+    );
 
-    if (senderChats.length > 0) {
+    if (recipientChats.length > 0) {
       // берем первый чат (на будущее нюансы - групповой чат или частный - сравниваем)
-      const firstSenderChat = senderChats[0];
-      setActiveChat(firstSenderChat.privateRoomId);
+      const firstRecipientChat = recipientChats[0];
+      setActiveChat(firstRecipientChat.id);
 
       // запрос на сообщения по privateRoomId
-      fetchMessages(firstSenderChat.privateRoomId);
+      fetchMessages(firstRecipientChat.id);
 
       setIsNewChat(false);
     } else {
@@ -97,60 +103,6 @@ const Home = () => {
   //   // localStorage.clear();
   // }, []);
 
-  const addToChats = (prevMessage) => {
-    //Нужно отправть этот чат на сервер еще
-
-    setActiveUser((prevActiveUser) => {
-      setChats((prevChats) => {
-        const existingChatIndex = prevChats.findIndex(
-          (chat) => chat.username === prevActiveUser.username
-        );
-
-        if (existingChatIndex === -1) {
-          return [
-            ...prevChats,
-            {
-              username: prevActiveUser.username,
-              lastMessage: prevMessage,
-              url: prevActiveUser.url,
-            },
-          ];
-        } else {
-          return prevChats.map((chat, index) =>
-            index === existingChatIndex
-              ? { ...chat, lastMessage: prevMessage }
-              : chat
-          );
-        }
-      });
-
-      return prevActiveUser;
-    });
-
-    // setChats((prevChats) => {
-    //   const existingChatIndex = prevChats.findIndex(
-    //     (chat) => chat.username === activeUser.username
-    //   );
-
-    //   if (existingChatIndex === -1) {
-    //     return [
-    //       ...prevChats,
-    //       {
-    //         username: activeUser.username,
-    //         lastMessage: prevMessage,
-    //         url: activeUser.url,
-    //       },
-    //     ];
-    //   } else {
-    //     return prevChats.map((chat, index) =>
-    //       index === existingChatIndex
-    //         ? { ...chat, lastMessage: prevMessage }
-    //         : chat
-    //     );
-    //   }
-    // });
-  };
-
   const setNewChat = (newChat) => {
     setActiveChat(newChat);
     setActiveUser({
@@ -166,35 +118,33 @@ const Home = () => {
       })
     );
 
-    fetchMessages(newChat.privateRoomId);
+    fetchMessages(newChat.id);
   };
 
   const fetchMessages = (privateRoomId) => {
-    // axios
-    //   .get(`/api/messages/${privateRoomId}`)
-    //   .then((response) => {
-    //     setMessages(response.data.messages);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching messages:", error);
-    //   });
+    axios
+      .get(`http://localhost:8080/api/v1/messages/${privateRoomId}`)
+      .then((response) => {
+        setMessages(response.data.messages);
+      })
+      .catch((error) => {
+        console.error("Error fetching messages:", error);
+      });
   };
 
-  // useEffect(() => {
-  //   webSocketService.connect();
+  useEffect(() => {
+    webSocketService.connect();
 
-  //   webSocketService.subscribeToNewMessages((newMessage) => {
-  //     console.log("New message received:", newMessage);
-  //   });
+    webSocketService.subscribeToNewMessages((newMessage) => {
+      console.log("New message received:", newMessage);
+    });
 
-  //   return () => {
-  //     webSocketService.disconnect();
-  //   };
-  // }, []);
+    return () => {
+      webSocketService.disconnect();
+    };
+  }, []);
 
   const submitMessage = (newMessage) => {
-    console.log(activeUser);
-
     const message = {
       privateRoomId: isNewChat ? null : activeChat,
       senderId: user.id,
@@ -203,52 +153,52 @@ const Home = () => {
     };
 
     if (isNewChat) {
-      // webSocketService.subscribeToPrivateChat(user.username, (chatInfo) => {
-      //   console.log("Received response1:", chatInfo);
-      //   setChats((prevChats) => [
-      //     ...prevChats,
-      //     {
-      //       privateRoomId: chatInfo.body.privateRoomId,
-      //       sender: {
-      //         id: user.id,
-      //         username: user.username,
-      //         bio: null,
-      //       },
-      //       recipient: {
-      //         id: activeUser.id,
-      //         username: activeUser.username,
-      //         bio: null,
-      //       },
-      //       lastMessage: newMessage,
-      //     },
-      //   ]);
-      //   setIsNewChat(false);
-      // });
+      webSocketService.subscribeToPrivateChat(user.username, (chatInfo) => {
+        console.log("Received response1:", chatInfo);
+        setChats((prevChats) => [
+          ...prevChats,
+          {
+            id: chatInfo.body.privateRoomId,
+            sender: {
+              id: user.id,
+              username: user.username,
+              bio: null,
+            },
+            recipient: {
+              id: activeUser.id,
+              username: activeUser.username,
+              bio: null,
+            },
+            lastMessage: newMessage,
+          },
+        ]);
+        setIsNewChat(false);
+      });
 
-      // webSocketService.subscribeToPrivateChat(
-      //   activeUser.username,
-      //   (chatInfo) => {
-      //     console.log("Received response2:", chatInfo);
+      webSocketService.subscribeToPrivateChat(
+        activeUser.username,
+        (chatInfo) => {
+          console.log("Received response2:", chatInfo);
 
-      //     setChats((prevChats) => {
-      //       const updatedChats = prevChats.map((chat) => {
-      //         if (chat.recipient.username === activeUser.username) {
-      //           return {
-      //             ...chat,
-      //             lastMessage: chatInfo.payload,
-      //           };
-      //         }
-      //         return chat;
-      //       });
-      //       return updatedChats;
-      //     });
-      //   }
-      // );
+          setChats((prevChats) => {
+            const updatedChats = prevChats.map((chat) => {
+              if (chat.recipient.username === activeUser.username) {
+                return {
+                  ...chat,
+                  lastMessage: chatInfo.payload,
+                };
+              }
+              return chat;
+            });
+            return updatedChats;
+          });
+        }
+      );
 
       setChats((prevChats) => [
         ...prevChats,
         {
-          privateRoomId: "chatInfo.body.privateRoomId",
+          id: "chatInfo.body.privateRoomId",
           sender: {
             id: user.id,
             username: user.username,
@@ -263,12 +213,10 @@ const Home = () => {
         },
       ]);
     } else {
-      const existingChat = chats.find(
-        (chat) => chat.privateRoomId === activeChat
-      );
+      const existingChat = chats.find((chat) => chat.id === activeChat);
       if (existingChat) {
         const updatedChats = chats.map((chat) => {
-          if (chat.privateRoomId === existingChat.privateRoomId) {
+          if (chat.id === existingChat.id) {
             return {
               ...chat,
               lastMessage: newMessage,
@@ -284,10 +232,23 @@ const Home = () => {
 
     setMessages((prevMessages) => [
       ...prevMessages,
-      { senderId: user.id, recipientId: activeUser.id, message: newMessage },
+      {
+        id: generateUniqueId(),
+        sender: {
+          id: user.id,
+          username: user.username,
+        },
+        recipient: {
+          id: activeUser.id,
+          username: activeUser.username,
+        },
+        payload: newMessage,
+      },
     ]);
+  };
 
-    // addToChats(newMessage);
+  const generateUniqueId = () => {
+    return "_" + Math.random().toString(36).substr(2, 9);
   };
 
   return (
@@ -301,7 +262,6 @@ const Home = () => {
         {!isEmptyObject(activeUser) ? (
           <Chat
             activeUser={activeUser}
-            addToChats={addToChats}
             messages={messages}
             submitMessage={submitMessage}
           />

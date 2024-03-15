@@ -6,50 +6,54 @@ import SearchChats from "./SearchChats";
 import axios from "axios";
 
 const Sidebar = ({ handleChatUser, chats, setNewChat }) => {
-  // const [users, setUsers] = useState([]);
-  const [users, setUsers] = useState([
-    {
-      id: "1",
-      username: "Kamil",
-      bio: "",
-    },
-    {
-      id: "2",
-      username: "Rustam",
-      bio: "",
-    },
-    {
-      id: "3",
-      username: "Aliya",
-      bio: "",
-    },
-    {
-      id: "4",
-      username: "Andrey",
-      bio: "",
-    },
-    {
-      id: "5",
-      username: "Svetlana",
-      bio: "",
-    },
-  ]);
+  const [users, setUsers] = useState([]);
+  // const [users, setUsers] = useState([
+  //   {
+  //     id: "1",
+  //     username: "Kamil",
+  //     bio: "",
+  //   },
+  //   {
+  //     id: "2",
+  //     username: "Rustam",
+  //     bio: "",
+  //   },
+  //   {
+  //     id: "3",
+  //     username: "Aliya",
+  //     bio: "",
+  //   },
+  //   {
+  //     id: "4",
+  //     username: "Andrey",
+  //     bio: "",
+  //   },
+  //   {
+  //     id: "5",
+  //     username: "Svetlana",
+  //     bio: "",
+  //   },
+  // ]);
 
   const [searchInput, setSearchInput] = useState("");
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await axios.get("http://localhost:8080/api/v1/users");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/v1/users");
 
-  //       if (response.status >= 200 && response.status < 300) {
-  //         setUsers(response.data);
-  //       } else {
-  //       }
-  //     } catch (error) {
-  //       console.error("Ошибка запроса:", error);
-  //     }
-  //   };
+        if (response.status >= 200 && response.status < 300) {
+          setUsers(response.data);
+        } else {
+          // Обработка ошибок
+        }
+      } catch (error) {
+        console.error("Ошибка запроса:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleSearchChange = (value) => {
     setSearchInput(value);
   };
