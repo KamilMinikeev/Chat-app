@@ -5,7 +5,7 @@ class WebSocketService {
   stompClient = null;
 
   connect() {
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS("http://localhost:8080/chatup");
     this.stompClient = Stomp.over(socket);
     this.stompClient.connect({}, () => {
       console.log("WebSocket Connected");
