@@ -17,6 +17,8 @@ const Home = () => {
 
   const [isNewChat, setIsNewChat] = useState(false);
 
+  const [roomId, setRoomId] = useState(null);
+
   const [messages, setMessages] = useState([
     // {
     //   id: "18",
@@ -48,6 +50,11 @@ const Home = () => {
   ]);
 
   useEffect(() => {
+    const user = localStorage.getItem("user");
+    //  if (user) {
+    //   setActiveUser(JSON.parse(savedUser));
+    //  }
+
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -125,7 +132,7 @@ const Home = () => {
     axios
       .get(`http://localhost:8080/api/v1/messages/${privateRoomId}`)
       .then((response) => {
-        setMessages(response.data.messages);
+        setMessages(response.data);
       })
       .catch((error) => {
         console.error("Error fetching messages:", error);
@@ -158,7 +165,7 @@ const Home = () => {
         setChats((prevChats) => [
           ...prevChats,
           {
-            id: chatInfo.body.privateRoomId,
+            id: chatInfo,
             sender: {
               id: user.id,
               username: user.username,
@@ -172,6 +179,7 @@ const Home = () => {
             lastMessage: newMessage,
           },
         ]);
+
         setIsNewChat(false);
       });
 
@@ -230,21 +238,23 @@ const Home = () => {
 
     webSocketService.sendMessage(message);
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        id: generateUniqueId(),
-        sender: {
-          id: user.id,
-          username: user.username,
+    setMessages((prevMessages) => {
+      return [
+        ...prevMessages,
+        {
+          id: generateUniqueId(),
+          sender: {
+            id: user.id,
+            username: user.username,
+          },
+          recipient: {
+            id: activeUser.id,
+            username: activeUser.username,
+          },
+          payload: newMessage,
         },
-        recipient: {
-          id: activeUser.id,
-          username: activeUser.username,
-        },
-        payload: newMessage,
-      },
-    ]);
+      ];
+    });
   };
 
   const generateUniqueId = () => {

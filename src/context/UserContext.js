@@ -9,8 +9,16 @@ export const UserProvider = ({ children }) => {
     username: "Kamil",
   });
 
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (user) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
   const login = (userData) => {
     setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
