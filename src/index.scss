@@ -178,6 +178,7 @@ button {
 .home {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 .sidebar {
   width: 25%;
@@ -367,11 +368,24 @@ button {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  height: 70vh;
+  overflow: auto;
+  scroll-behavior: smooth;
 
-  justify-content: flex-end;
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  &__messages {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .message {

@@ -1,20 +1,10 @@
 // UserContext.js
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState({
-    id: "1",
-    username: "Kamil",
-  });
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (user) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
+  const [user, setUser] = useState({});
 
   const login = (userData) => {
     setUser(userData);
@@ -26,7 +16,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </UserContext.Provider>
   );

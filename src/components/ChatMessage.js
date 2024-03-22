@@ -3,7 +3,15 @@ import React, { useState, useEffect, useRef } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 
-const ChatMessage = ({ onMessageChange, submitMessage, activeUser }) => {
+const ChatMessage = ({
+  onMessageChange,
+  submitMessage,
+  activeUser,
+  isNewChat,
+  chats,
+  messages,
+  roomId,
+}) => {
   const inputRef = useRef();
 
   const [isPlaceholderVisible, setPlaceholderVisible] = useState(true);
@@ -98,7 +106,7 @@ const ChatMessage = ({ onMessageChange, submitMessage, activeUser }) => {
     return () => {
       removeEvents();
     };
-  }, [inputRef, activeUser]);
+  }, [inputRef, activeUser, isNewChat, chats, messages, roomId]);
 
   return (
     <div className="chat-message">

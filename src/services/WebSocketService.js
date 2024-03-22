@@ -4,11 +4,16 @@ import Stomp from "stompjs";
 class WebSocketService {
   stompClient = null;
 
-  connect() {
-    const socket = new SockJS("http://localhost:8080/ws");
+  connect(callback) {
+    this.connectCallback = callback;
+
+    const socket = new SockJS("http://localhost:8080/chatup");
     this.stompClient = Stomp.over(socket);
     this.stompClient.connect({}, () => {
       console.log("WebSocket Connected");
+      if (this.connectCallback) {
+        this.connectCallback();
+      }
     });
   }
 
@@ -16,6 +21,10 @@ class WebSocketService {
     if (this.stompClient !== null) {
       this.stompClient.disconnect();
     }
+  }
+
+  onConnect(callback) {
+    this.onConnectCallback = callback;
   }
 
   subscribeToNewMessages(callback) {
