@@ -1,17 +1,3 @@
-# Запуск проекта
-<<<<<<< HEAD
-
-Установка node.js: https://nodejs.org/en/download (мб нужна перезагрузка)
-Далее в терминале проекта:
-npm i (установка всех библиотек)
-npm start (Запуск проекта)
-=======
-Установка node.js: https://nodejs.org/en/download (мб нужна перезагрузка) \
-Далее в терминале проекта: \
-npm i (установка всех библиотек) \
-npm start (Запуск проекта) 
->>>>>>> 9f00fb9d645dcfb485004be92e5ab5ea187e6a35
-
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

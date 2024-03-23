@@ -53,8 +53,6 @@ const Login = () => {
     e.preventDefault();
     try {
       if (handleValidation()) {
-        // Отправка данных на сервер
-
         const response = await axios.post(
           "http://localhost:8080/api/v1/users/authenticate",
           formData
@@ -69,6 +67,10 @@ const Login = () => {
             username: response.data.username,
             bio: response.data.bio,
           });
+
+          localStorage.setItem("activeUser", JSON.stringify(""));
+          localStorage.setItem("messages", JSON.stringify(""));
+
           navigate("/home");
         } else {
           console.error("Ошибка входа", response.data.message);

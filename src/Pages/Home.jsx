@@ -24,6 +24,7 @@ const Home = () => {
   const [chats, setChats] = useState([]);
 
   useEffect(() => {
+    //Получение данных с глобального хранилища
     const userDataFromLocalStorage = JSON.parse(localStorage.getItem("user"));
     const roomIdFromLocalStorage = JSON.parse(localStorage.getItem("roomId"));
     const messagesFromLocalStorage = JSON.parse(
@@ -55,29 +56,27 @@ const Home = () => {
       fetchData();
     });
 
+    // Получение чатов
+
     const fetchData = async () => {
       try {
-        if (user && user.id) {
-          const response = await axios.get(
-            `http://localhost:8080/api/v1/private-rooms/${user.id}`
+        const response = await axios.get(
+          `http://localhost:8080/api/v1/private-rooms/${user.id}`
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+          setChats(response.data);
+          const newChats = response.data;
+          setChats(newChats);
+
+          webSocketService.subscribeToPrivateChat2(
+            user.username,
+            activeUser.username,
+            (chatInfo) => {
+              console.log("Received response3 for user", chatInfo);
+            }
           );
-
-          if (response.status >= 200 && response.status < 300) {
-            const newChats = response.data;
-            setChats(newChats);
-
-            newChats.forEach((chat) => {
-              const username = chat.recipient.username;
-              webSocketService.subscribeToPrivateChat(username, (chatInfo) => {
-                console.log(
-                  "Received response3 for user",
-                  username,
-                  ":",
-                  chatInfo
-                );
-              });
-            });
-          }
+        } else {
         }
       } catch (error) {
         console.error("Ошибка запроса:", error);
@@ -85,6 +84,7 @@ const Home = () => {
     };
   }, [user]);
 
+  //Клик на пользователя из поиска
   const handleChatUser = (user) => {
     setActiveUser(user);
     localStorage.setItem("activeUser", JSON.stringify(user));
@@ -119,6 +119,7 @@ const Home = () => {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   };
 
+  // Клик на чат
   const setNewChat = (newChat) => {
     setActiveChat(newChat);
     localStorage.setItem("chat", JSON.stringify(newChat));
@@ -141,6 +142,7 @@ const Home = () => {
     fetchMessages(newChat.id);
   };
 
+  // Получение списка сообщений
   const fetchMessages = (privateRoomId) => {
     axios
       .get(`http://localhost:8080/api/v1/messages/${privateRoomId}`)
@@ -153,16 +155,7 @@ const Home = () => {
       });
   };
 
-  useEffect(() => {
-    // webSocketService.subscribeToNewMessages((newMessage) => {
-    //   console.log("New message received:", newMessage);
-    // });
-    // return () => {
-    //   webSocketService.disconnect();
-    // };
-    //TODO : refactor disconnect
-  }, []);
-
+  // Отправка сообщения
   const submitMessage = (newMessage) => {
     const message = {
       privateRoomId: isNewChat ? null : roomId,
@@ -171,28 +164,32 @@ const Home = () => {
       payload: newMessage,
     };
 
-    console.log(roomId);
-
     if (isNewChat) {
       webSocketService.subscribeToPrivateChat(user.username, (chatInfo) => {
         console.log("Received response1:", chatInfo);
-        setChats((prevChats) => [
-          ...prevChats,
-          {
-            id: chatInfo,
-            sender: {
-              id: user.id,
-              username: user.username,
-              bio: null,
+        setChats((prevChats) => {
+          const updatedChats = [
+            ...prevChats,
+            {
+              id: chatInfo,
+              sender: {
+                id: user.id,
+                username: user.username,
+                bio: null,
+              },
+              recipient: {
+                id: activeUser.id,
+                username: activeUser.username,
+                bio: null,
+              },
+              lastMessage: newMessage,
             },
-            recipient: {
-              id: activeUser.id,
-              username: activeUser.username,
-              bio: null,
-            },
-            lastMessage: newMessage,
-          },
-        ]);
+          ];
+
+          localStorage.setItem("chats", JSON.stringify(updatedChats));
+
+          return updatedChats;
+        });
         setIsNewChat(false);
         setRoomId(chatInfo);
         localStorage.setItem("roomId", JSON.stringify(chatInfo));
@@ -203,44 +200,25 @@ const Home = () => {
         (chatInfo) => {
           console.log("Received response2:", chatInfo);
 
-          // setChats((prevChats) => {
-          //   const updatedChats = prevChats.map((chat) => {
-          //     if (chat.recipient.username === activeUser.username) {
-          //       return {
-          //         ...chat,
-          //         lastMessage: chatInfo.payload,
-          //       };
-          //     }
-          //     return chat;
-          //   });
-          //   return updatedChats;
-          // });
+          setChats((prevChats) => {
+            const updatedChats = prevChats.map((chat) => {
+              if (chat.recipient.username === activeUser.username) {
+                return {
+                  ...chat,
+                  lastMessage: chatInfo.payload,
+                };
+              }
+              return chat;
+            });
+            return updatedChats;
+          });
         }
       );
-
-      // setChats((prevChats) => [
-      //   ...prevChats,
-      //   {
-      //     id: "chatInfo.body.privateRoomId",
-      //     sender: {
-      //       id: user.id,
-      //       username: user.username,
-      //       bio: null,
-      //     },
-      //     recipient: {
-      //       id: activeUser.id,
-      //       username: activeUser.username,
-      //       bio: null,
-      //     },
-      //     lastMessage: newMessage,
-      //   },
-      // ]);
     } else {
-      const existingChat = chats.find((chat) => chat.id === activeChat);
+      const existingChat = chats.find((chat) => chat.id === activeChat.id);
 
       if (existingChat) {
         const updatedChats = chats.map((chat) => {
-          console.log(updatedChats);
           if (chat.id === existingChat.id) {
             return {
               ...chat,
@@ -249,6 +227,8 @@ const Home = () => {
           }
           return chat;
         });
+
+        console.log(updatedChats);
         setChats(updatedChats);
       }
     }
@@ -285,6 +265,7 @@ const Home = () => {
         handleChatUser={handleChatUser}
         chats={chats}
         setNewChat={setNewChat}
+        user={user}
       />
       <div className="chat-inner">
         {!isEmptyObject(activeUser) ? (

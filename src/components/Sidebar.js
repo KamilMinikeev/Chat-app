@@ -5,7 +5,7 @@ import SearchChats from "./SearchChats";
 
 import axios from "axios";
 
-const Sidebar = ({ handleChatUser, chats, setNewChat }) => {
+const Sidebar = ({ handleChatUser, chats, setNewChat, user }) => {
   const [users, setUsers] = useState([]);
   // const [users, setUsers] = useState([
   //   {
@@ -77,6 +77,7 @@ const Sidebar = ({ handleChatUser, chats, setNewChat }) => {
           <Chats chats={chats} setNewChat={setNewChat} />
         )}
       </div>
+      <div className="user">{user.username}</div>
     </div>
   );
 };

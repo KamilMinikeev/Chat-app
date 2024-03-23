@@ -6,7 +6,6 @@ class WebSocketService {
 
   connect(callback) {
     this.connectCallback = callback;
-
     const socket = new SockJS("http://localhost:8080/chatup");
     this.stompClient = Stomp.over(socket);
     this.stompClient.connect({}, () => {
@@ -49,6 +48,19 @@ class WebSocketService {
     }
 
     const subscription = `/user/${senderUsername}/queue/private-chat`;
+
+    this.stompClient.subscribe(subscription, (response) => {
+      const message = JSON.parse(response.body);
+      callback(message);
+    });
+  }
+
+  subscribeToPrivateChat2(senderUsername, recipientUsername, callback) {
+    if (!this.stompClient) {
+      return;
+    }
+
+    const subscription = `/user/${senderUsername}/${recipientUsername}/queue/private-chat`;
 
     this.stompClient.subscribe(subscription, (response) => {
       const message = JSON.parse(response.body);

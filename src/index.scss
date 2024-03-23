@@ -181,6 +181,7 @@ button {
   overflow: hidden;
 }
 .sidebar {
+  position: relative;
   width: 25%;
   height: 100%;
   background: #fff;
@@ -504,6 +505,7 @@ button {
 .chats {
   display: flex;
   flex-direction: column;
+  overflow: auto;
   &__item {
     cursor: pointer;
     position: relative;
@@ -582,4 +584,15 @@ button {
 
     display: none;
   }
+}
+
+.user {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: #81b9e3;
+  padding: 30px;
+  color: #fff;
+  width: 100%;
+  font-size: 22px;
 }
