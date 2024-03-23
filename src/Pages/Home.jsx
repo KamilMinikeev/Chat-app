@@ -83,12 +83,12 @@ const Home = () => {
                   {
                     id: generateUniqueId(),
                     sender: {
-                      id: user.id,
-                      username: user.username,
-                    },
-                    recipient: {
                       id: activeUser.id,
                       username: activeUser.username,
+                    },
+                    recipient: {
+                      id: user.id,
+                      username: user.username,
                     },
                     payload: chatInfo.payload,
                   },
