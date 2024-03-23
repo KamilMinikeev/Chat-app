@@ -69,11 +69,38 @@ const Home = () => {
           const newChats = response.data;
           setChats(newChats);
 
+          unsubscribeAll();
+
           webSocketService.subscribeToPrivateChat2(
             user.username,
             activeUser.username,
             (chatInfo) => {
               console.log("Received response3 for user", chatInfo);
+
+              setMessages((prevMessages) => {
+                const updatedMessages = [
+                  ...prevMessages,
+                  {
+                    id: generateUniqueId(),
+                    sender: {
+                      id: user.id,
+                      username: user.username,
+                    },
+                    recipient: {
+                      id: activeUser.id,
+                      username: activeUser.username,
+                    },
+                    payload: chatInfo.payload,
+                  },
+                ];
+
+                localStorage.setItem(
+                  "messages",
+                  JSON.stringify(updatedMessages)
+                );
+
+                return updatedMessages;
+              });
             }
           );
         } else {

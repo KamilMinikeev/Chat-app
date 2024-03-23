@@ -67,6 +67,17 @@ class WebSocketService {
       callback(message);
     });
   }
+
+  unsubscribeAll() {
+    if (!this.stompClient) {
+      return;
+    }
+
+    // Отписываемся от всех текущих подписок
+    this.stompClient.subscriptions.forEach((subscription) => {
+      this.stompClient.unsubscribe(subscription.id);
+    });
+  }
 }
 
 const webSocketService = new WebSocketService();
