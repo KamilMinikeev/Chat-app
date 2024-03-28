@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 
-const SearchChats = ({ users, searchInput, chatUser }) => {
+const SearchChats = ({ users, searchInput, chatUser, myUser }) => {
   const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
     const filtered = users.filter((user) =>
       user.username.toLowerCase().includes(searchInput.toLowerCase())
     );
-    setFilteredUsers(filtered);
+
+    const filteredWithoutCurrentUser = filtered.filter(
+      (user) => user.username !== myUser.username
+    );
+
+    setFilteredUsers(filteredWithoutCurrentUser);
   }, [searchInput, users]);
 
   return (

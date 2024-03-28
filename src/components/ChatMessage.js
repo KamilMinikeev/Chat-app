@@ -7,6 +7,7 @@ const ChatMessage = ({
   onMessageChange,
   submitMessage,
   activeUser,
+  activeChat,
   isNewChat,
   chats,
   messages,
@@ -106,7 +107,7 @@ const ChatMessage = ({
     return () => {
       removeEvents();
     };
-  }, [inputRef, activeUser, isNewChat, chats, messages, roomId]);
+  }, [inputRef, activeUser, activeChat, isNewChat, chats, messages, roomId]);
 
   return (
     <div className="chat-message">

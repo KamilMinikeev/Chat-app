@@ -32,7 +32,7 @@ const ChatContent = ({ messages }) => {
                 message.sender.id === user.id ? "sender" : "recipient"
               }`}
             >
-              {message.payload}
+              <div style={{ whiteSpace: "pre-line" }}>{message.payload}</div>
             </div>
           ))}
       </div>

@@ -9,6 +9,8 @@ import { useUser } from "../context/UserContext";
 import webSocketService from "../services/WebSocketService";
 
 const Home = () => {
+  const [initialized, setInitialized] = useState(false);
+
   const { user, setUser } = useUser();
 
   const [activeUser, setActiveUser] = useState({});
@@ -60,6 +62,12 @@ const Home = () => {
 
     const fetchData = async () => {
       try {
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (user) {
+          setUser(user);
+        }
+
         const response = await axios.get(
           `http://localhost:8080/api/v1/private-rooms/${user.id}`
         );
@@ -69,47 +77,53 @@ const Home = () => {
           const newChats = response.data;
           setChats(newChats);
 
-          unsubscribeAll();
+          if (newChats.length > 0) {
+            console.log(999);
+            newChats.forEach((chat) => {
+              const recipientId = chat.recipient.id;
+              const recipientUsername = chat.recipient.username;
 
-          webSocketService.subscribeToPrivateChat2(
-            user.username,
-            activeUser.username,
-            (chatInfo) => {
-              console.log("Received response3 for user", chatInfo);
+              webSocketService.subscribeToPrivateChat2(
+                user.username,
+                recipientUsername,
+                (chatInfo) => {
+                  console.log("Received response3 for user", chatInfo);
 
-              setMessages((prevMessages) => {
-                const updatedMessages = [
-                  ...prevMessages,
-                  {
-                    id: generateUniqueId(),
-                    sender: {
-                      id: activeUser.id,
-                      username: activeUser.username,
-                    },
-                    recipient: {
-                      id: user.id,
-                      username: user.username,
-                    },
-                    payload: chatInfo.payload,
-                  },
-                ];
+                  setMessages((prevMessages) => {
+                    const updatedMessages = [
+                      ...prevMessages,
+                      {
+                        id: generateUniqueId(),
+                        sender: {
+                          id: recipientId,
+                          username: recipientUsername,
+                        },
+                        recipient: {
+                          id: user.id,
+                          username: user.username,
+                        },
+                        payload: chatInfo.payload,
+                      },
+                    ];
 
-                localStorage.setItem(
-                  "messages",
-                  JSON.stringify(updatedMessages)
-                );
+                    localStorage.setItem(
+                      "messages",
+                      JSON.stringify(updatedMessages)
+                    );
 
-                return updatedMessages;
-              });
-            }
-          );
+                    return updatedMessages;
+                  });
+                }
+              );
+            });
+          }
         } else {
         }
       } catch (error) {
         console.error("Ошибка запроса:", error);
       }
     };
-  }, [user]);
+  }, []);
 
   //Клик на пользователя из поиска
   const handleChatUser = (user) => {
@@ -241,7 +255,41 @@ const Home = () => {
           });
         }
       );
+
+      const recipientUsername = activeUser.username;
+      const recipientId = activeUser.id;
+
+      webSocketService.subscribeToPrivateChat2(
+        user.username,
+        recipientUsername,
+        (chatInfo) => {
+          console.log("Received response4 for user", chatInfo);
+
+          setMessages((prevMessages) => {
+            const updatedMessages = [
+              ...prevMessages,
+              {
+                id: generateUniqueId(),
+                sender: {
+                  id: recipientId,
+                  username: recipientUsername,
+                },
+                recipient: {
+                  id: user.id,
+                  username: user.username,
+                },
+                payload: chatInfo.payload,
+              },
+            ];
+
+            localStorage.setItem("messages", JSON.stringify(updatedMessages));
+
+            return updatedMessages;
+          });
+        }
+      );
     } else {
+      console.log(activeChat);
       const existingChat = chats.find((chat) => chat.id === activeChat.id);
 
       if (existingChat) {
@@ -278,8 +326,23 @@ const Home = () => {
       },
     ];
 
+    console.log(updatedMessages);
     setMessages(updatedMessages);
     localStorage.setItem("messages", JSON.stringify(updatedMessages));
+
+    if (activeChat) {
+      const updatedChats = chats.map((chat) => {
+        if (chat.id === activeChat.id) {
+          return {
+            ...chat,
+            lastMessage: newMessage,
+          };
+        }
+        return chat;
+      });
+
+      setChats(updatedChats);
+    }
   };
 
   const generateUniqueId = () => {
@@ -293,11 +356,13 @@ const Home = () => {
         chats={chats}
         setNewChat={setNewChat}
         user={user}
+        activeUser={activeUser}
       />
       <div className="chat-inner">
         {!isEmptyObject(activeUser) ? (
           <Chat
             activeUser={activeUser}
+            activeChat={activeChat}
             messages={messages}
             chats={chats}
             submitMessage={submitMessage}

@@ -386,6 +386,9 @@ button {
     width: 800px;
     margin-left: auto;
     margin-right: auto;
+    @media (max-width: 1130px) {
+      width: 90%;
+    }
   }
 }
 
@@ -432,6 +435,10 @@ button {
     box-sizing: border-box;
     font-size: 18px;
     color: #a2acb4;
+
+    @media (max-width: 960px) {
+      width: 80%;
+    }
   }
   &__submit {
     background: #fff;

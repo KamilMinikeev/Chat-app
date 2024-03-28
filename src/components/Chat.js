@@ -7,6 +7,7 @@ import ChatMessage from "./ChatMessage";
 
 const Chat = ({
   activeUser,
+  activeChat,
   messages,
   chats,
   submitMessage,
@@ -20,6 +21,7 @@ const Chat = ({
       <ChatMessage
         submitMessage={submitMessage}
         activeUser={activeUser}
+        activeChat={activeChat}
         isNewChat={isNewChat}
         messages={messages}
         chats={chats}

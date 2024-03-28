@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Chats = ({ chats, setNewChat }) => {
+const Chats = ({ chats, setNewChat, activeUser }) => {
   const [activeChat, setActiveChat] = useState(null);
 
   const chatClick = (index, chat) => {
@@ -13,7 +13,9 @@ const Chats = ({ chats, setNewChat }) => {
       {chats.map((chat, index) => (
         <div
           key={index}
-          className={`chats__item ${index === activeChat ? "active" : ""}`}
+          className={`chats__item ${
+            activeUser.id === chat.recipient.id ? "active" : ""
+          }`}
           onClick={() => chatClick(index, chat)}
         >
           <div className="chats__item-img">
