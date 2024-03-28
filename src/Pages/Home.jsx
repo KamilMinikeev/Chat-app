@@ -231,6 +231,23 @@ const Home = () => {
 
           return updatedChats;
         });
+        const newChat = {
+          id: chatInfo,
+          sender: {
+            id: user.id,
+            username: user.username,
+            bio: null,
+          },
+          recipient: {
+            id: activeUser.id,
+            username: activeUser.username,
+            bio: null,
+          },
+          lastMessage: newMessage,
+        };
+        console.log(newChat);
+        setActiveChat(newChat);
+        localStorage.setItem("chat", JSON.stringify(newChat));
         setIsNewChat(false);
         setRoomId(chatInfo);
         localStorage.setItem("roomId", JSON.stringify(chatInfo));
@@ -290,6 +307,7 @@ const Home = () => {
       );
     } else {
       console.log(activeChat);
+
       const existingChat = chats.find((chat) => chat.id === activeChat.id);
 
       if (existingChat) {
