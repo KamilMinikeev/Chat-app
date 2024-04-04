@@ -2,20 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 
 import SendIcon from "@mui/icons-material/Send";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
-const ChatMessage = ({
-  onMessageChange,
-  submitMessage,
-  activeUser,
-  activeChat,
-  isNewChat,
-  chats,
-  messages,
-  roomId,
-}) => {
+const ChatMessage = ({ submitMessage, openModal }) => {
   const inputRef = useRef();
 
   const [isPlaceholderVisible, setPlaceholderVisible] = useState(true);
+
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const submit = () => {
     const textContent = inputRef.current.innerText;
@@ -83,6 +77,23 @@ const ChatMessage = ({
     document.execCommand("insertText", false, text);
   };
 
+  const chooseFile = () => {
+    const fileInput = document.getElementById("fileInput");
+    fileInput.click();
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+
+    openModal(file);
+  };
+
+  const handleFileClick = (event) => {
+    const fileInput = event.target;
+    fileInput.value = null;
+  };
+
   useEffect(() => {
     const currentInputRef = inputRef.current;
 
@@ -107,7 +118,7 @@ const ChatMessage = ({
     return () => {
       removeEvents();
     };
-  }, [inputRef, activeUser, activeChat, isNewChat, chats, messages, roomId]);
+  }, [submit]);
 
   return (
     <div className="chat-message">
@@ -116,6 +127,17 @@ const ChatMessage = ({
           <button className="emoji">
             <SentimentSatisfiedAltIcon />
           </button>
+          <button className="file" onClick={chooseFile}>
+            <AttachFileIcon />
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              onClick={handleFileClick}
+            />
+          </button>
+
           {isPlaceholderVisible && (
             <div
               className="chat-placeholder"

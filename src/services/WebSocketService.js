@@ -69,14 +69,26 @@ class WebSocketService {
   }
 
   unsubscribeAll() {
-    if (!this.stompClient) {
+    console.log("this.stompClient:", this.stompClient);
+    console.log(
+      "this.stompClient.subscriptions:",
+      this.stompClient.subscriptions
+    );
+
+    if (
+      !this.stompClient ||
+      typeof this.stompClient.subscriptions !== "object"
+    ) {
       return;
     }
 
+    console.log(9999);
+
     // Отписываемся от всех текущих подписок
-    this.stompClient.subscriptions.forEach((subscription) => {
-      this.stompClient.unsubscribe(subscription.id);
-    });
+    for (const subscriptionId in this.stompClient.subscriptions) {
+      const subscription = this.stompClient.subscriptions[subscriptionId];
+      this.stompClient.unsubscribe(subscription); // Передаем объект подписки
+    }
   }
 }
 

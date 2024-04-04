@@ -25,6 +25,8 @@ const Home = () => {
 
   const [chats, setChats] = useState([]);
 
+  const [newSubscribe, setNewSubscribe] = useState(true);
+
   useEffect(() => {
     //Получение данных с глобального хранилища
     const userDataFromLocalStorage = JSON.parse(localStorage.getItem("user"));
@@ -78,7 +80,6 @@ const Home = () => {
           setChats(newChats);
 
           if (newChats.length > 0) {
-            console.log(999);
             newChats.forEach((chat) => {
               const recipientId = chat.recipient.id;
               const recipientUsername = chat.recipient.username;
@@ -206,33 +207,17 @@ const Home = () => {
     };
 
     if (isNewChat) {
-      webSocketService.subscribeToPrivateChat(user.username, (chatInfo) => {
-        console.log("Received response1:", chatInfo);
-        setChats((prevChats) => {
-          const updatedChats = [
-            ...prevChats,
-            {
-              id: chatInfo,
-              sender: {
-                id: user.id,
-                username: user.username,
-                bio: null,
-              },
-              recipient: {
-                id: activeUser.id,
-                username: activeUser.username,
-                bio: null,
-              },
-              lastMessage: newMessage,
-            },
-          ];
+      let latestResponse = null;
 
-          localStorage.setItem("chats", JSON.stringify(updatedChats));
+      const handleResponse = (chatInfo) => {
+        console.log("Received response:", chatInfo);
+        latestResponse = chatInfo;
+      };
 
-          return updatedChats;
-        });
+      const handleLastResponse = () => {
+        console.log("Latest response:", latestResponse);
         const newChat = {
-          id: chatInfo,
+          id: latestResponse,
           sender: {
             id: user.id,
             username: user.username,
@@ -245,33 +230,58 @@ const Home = () => {
           },
           lastMessage: newMessage,
         };
-        console.log(newChat);
         setActiveChat(newChat);
+        console.log(newChat);
         localStorage.setItem("chat", JSON.stringify(newChat));
+
+        setChats((prevChats) => {
+          const updatedChats = [...prevChats, newChat];
+
+          localStorage.setItem("chats", JSON.stringify(updatedChats));
+
+          return updatedChats;
+        });
+
         setIsNewChat(false);
-        setRoomId(chatInfo);
-        localStorage.setItem("roomId", JSON.stringify(chatInfo));
-      });
+        setRoomId(latestResponse);
+        localStorage.setItem("roomId", JSON.stringify(latestResponse));
 
-      webSocketService.subscribeToPrivateChat(
-        activeUser.username,
-        (chatInfo) => {
-          console.log("Received response2:", chatInfo);
+        // const updatedChats = chats.map((chat) => {
+        //   if (chat.id === newChat.id) {
+        //     return {
+        //       ...chat,
+        //       lastMessage: newMessage,
+        //     };
+        //   }
+        //   return chat;
+        // });
 
-          setChats((prevChats) => {
-            const updatedChats = prevChats.map((chat) => {
-              if (chat.recipient.username === activeUser.username) {
-                return {
-                  ...chat,
-                  lastMessage: chatInfo.payload,
-                };
-              }
-              return chat;
-            });
-            return updatedChats;
-          });
-        }
-      );
+        // setChats(updatedChats);
+      };
+
+      webSocketService.subscribeToPrivateChat(user.username, handleResponse);
+
+      setTimeout(handleLastResponse, 100);
+
+      // webSocketService.subscribeToPrivateChat(
+      //   activeUser.username,
+      //   (chatInfo) => {
+      //     console.log("Received response2:", chatInfo);
+
+      //     setChats((prevChats) => {
+      //       const updatedChats = prevChats.map((chat) => {
+      //         if (chat.recipient.username === activeUser.username) {
+      //           return {
+      //             ...chat,
+      //             lastMessage: chatInfo.payload,
+      //           };
+      //         }
+      //         return chat;
+      //       });
+      //       return updatedChats;
+      //     });
+      //   }
+      // );
 
       const recipientUsername = activeUser.username;
       const recipientId = activeUser.id;
@@ -344,23 +354,22 @@ const Home = () => {
       },
     ];
 
-    console.log(updatedMessages);
     setMessages(updatedMessages);
     localStorage.setItem("messages", JSON.stringify(updatedMessages));
 
-    if (activeChat) {
-      const updatedChats = chats.map((chat) => {
-        if (chat.id === activeChat.id) {
-          return {
-            ...chat,
-            lastMessage: newMessage,
-          };
-        }
-        return chat;
-      });
+    // if (activeChat) {
+    //   const updatedChats = chats.map((chat) => {
+    //     if (chat.id === activeChat.id) {
+    //       return {
+    //         ...chat,
+    //         lastMessage: newMessage,
+    //       };
+    //     }
+    //     return chat;
+    //   });
 
-      setChats(updatedChats);
-    }
+    //   setChats(updatedChats);
+    // }
   };
 
   const generateUniqueId = () => {
